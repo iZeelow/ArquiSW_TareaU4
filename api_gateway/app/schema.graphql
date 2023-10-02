@@ -9,12 +9,12 @@ type Player {
     username: String!
     password: String!
     email: String
-    admin: Bool
+    admin: Boolean
     phone_number: Int
 }
 
 type Query {
-    listPlayers(): [Player]!
+    listPlayers: [Player]!
     getPlayer(id: ID!): Player!
 }
 
@@ -24,6 +24,6 @@ type Mutation {
     username: String!,
     password: String!,
     email: String,
-    admin: Bool,
+    admin: Boolean,
     phone_number: Int): Player!
 }

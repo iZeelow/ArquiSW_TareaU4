@@ -69,7 +69,6 @@ def resolve_create_user(
 
     return requests.post(f"http://tarea_u4_service_users/users", json=payload).json()
 
-
 schema = make_executable_schema(type_defs, query, mutation, player)
 app = CORSMiddleware(
     GraphQL(schema, debug=True),
