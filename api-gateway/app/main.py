@@ -42,15 +42,21 @@ def resolve_get_all_users(obj, resolve_info: GraphQLResolveInfo):
         return response.json()
 
 @mutation.field("createUser")
-def resolve_create_user(obj, resolve_info: GraphQLResolveInfo, name, username, password):
+def resolve_create_user(obj, resolve_info: GraphQLResolveInfo, name, username, password,email=None,admin=None,phone_number=None):
     payload = dict(name=name,
                    username=username,
                    pasword=password)
+    if email is not None:
+        payload["email"] = email
+    if admin is not None:
+        payload["admin"] = admin
+    if phone_number is not None:
+        payload["phone_number"] = phone_number
 
     return requests.post(f"http://tarea_u4_service_users/users", json=payload).json()
 
 @mutation.field("updateUser")
-def resolve_update_user(obj, resolve_info: GraphQLResolveInfo, id, name=None,username=None , password=None):
+def resolve_update_user(obj, resolve_info: GraphQLResolveInfo, id, name=None,username=None , password=None, email=None,admin=None,phone_number=None):
     payload = {}
     if name is not None:
         payload["name"] = name
@@ -58,6 +64,12 @@ def resolve_update_user(obj, resolve_info: GraphQLResolveInfo, id, name=None,use
         payload["username"] = username
     if password is not None:
         payload["password"] = password
+    if email is not None:
+        payload["email"] = email
+    if admin is not None:
+        payload["admin"] = admin
+    if phone_number is not None:
+        payload["phone_number"] = phone_number
 
     return requests.put(f"http://tarea_u4_service_users/users/{id}", json=payload)
 
