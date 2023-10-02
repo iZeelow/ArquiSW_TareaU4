@@ -137,8 +137,7 @@ def create_user(user: User):
         raise HTTPException(status_code=404, detail="Something went wrong")
 
 
-@app.put(
-    "/users/{id}/{ad}",
+@app.put("/users/{id}/{ad}",
     tags=["User"],
     response_model=User,
     summary="Set ad to user",
