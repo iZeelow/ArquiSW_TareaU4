@@ -14,7 +14,7 @@ from app.events import Emit
 
 app = FastAPI(title=" User APIREST FastAPI & MongoDB", version="0.4.2")
 
-mongodb_client = MongoClient("tarea_U4_service_users_mongodb", 27017)
+mongodb_client = MongoClient("tarea_u4_service_users_mongodb", 27017)
 
 
 class User(BaseModel):
@@ -25,6 +25,7 @@ class User(BaseModel):
     email: Optional[str]  # = Field(default=None, examples=["juan@gmail.com"])
     admin: Optional[bool]  # = Field(default=None, examples=["True"])
     phone_number: Optional[int]  # = Field(default=None, examples=["123456789"])
+    ad: Optional[str]
 
     class Config:
         arbitrary_types_allowed = True
@@ -36,6 +37,7 @@ class User(BaseModel):
                 "email": "email@email.com",
                 "admin": True,
                 "phone_number": 1234567890,
+                "ad": "Compra Coca-Cola",
             }
         }
 
@@ -101,11 +103,36 @@ def create_user(user: User):
         id = mongodb_client.service_users.users.insert_one(new_user).inserted_id
         user = mongodb_client.service_users.users.find_one({"_id": id})
         logging.info("new user created")
-        emit_events.send(id, "create", new_user)
+        new_user["id"] = str(id)
+        emit_events.send(str(id), "create", new_user)
         return userEntity(user)
 
-    except ():
+    except Exception as e:
+        print(e)
         raise HTTPException(status_code=404, detail="Something went wrong")
+
+
+@app.put(
+    "/users/{id}/ad",
+    tags=["User"],
+    response_model=str,
+    summary="Set ad to user",
+    response_description="The ad received",
+)
+def update_user_ad(id: str, ad: str):
+    user = mongodb_client.service_users.users.find_one({"_id": id})
+    user["ad"] = ad
+    try:
+        mongodb_client.service_users.users.find_one_and_update(
+            {"_id": ObjectId(id)}, {"$set": dict(user)}
+        )
+        logging.info("USer has new ad: %s" % ad)
+        emit_events.send(id, "update", user)
+        return userEntity(
+            mongodb_client.service_users.users.find_one({"_id": ObjectId(id)})
+        )
+    except (InvalidId, TypeError):
+        raise HTTPException(status_code=404, detail="User not found")
 
 
 @app.put(
@@ -139,8 +166,29 @@ def update_user(id: str, user: User):
 def delete_user(id: str):
     try:
         user = mongodb_client.service_users.users.find_one({"_id": ObjectId(id)})
-        mongodb_client.service_users.users.delete_one(({"_id": ObjectId(id)}))
+        mongodb_client.service_users.users.delete_one({"_id": ObjectId(id)})
         logging.info("User deleted: %s" % id)
+        emit_events.send(id, "delete", user)
+        return user
+    except (InvalidId, TypeError):
+        raise HTTPException(status_code=404, detail="User not found")
+
+
+@app.delete(
+    "/users/{id}/ad",
+    tags=["User"],
+    response_model=str,
+    summary="Delete the ad from the user",
+    response_description="The Deleted ad",
+)
+def delete_user_ad(id: str):
+    try:
+        user = mongodb_client.service_users.users.find_one({"_id": ObjectId(id)})
+        user["ad"] = None
+        mongodb_client.service_users.users.find_one_and_update(
+            {"_id": ObjectId(id)}, {"$set": dict(user)}
+        )
+        logging.info("User ad deleted: %s" % id)
         emit_events.send(id, "delete", user)
         return user
     except (InvalidId, TypeError):

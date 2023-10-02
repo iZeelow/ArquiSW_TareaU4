@@ -1,6 +1,7 @@
 import json
 import pika
 import logging
+import bson.json_util as json_util
 
 logging.getLogger("pika").setLevel(logging.ERROR)
 
@@ -21,7 +22,7 @@ class Emit:
 
     def publish(self, id, action, payload):
         routing_key = f"user.{action}.{id}"
-        message = json.dumps(payload)
+        message = json_util.dumps(payload)
 
         self.channel.basic_publish(
             exchange="users", routing_key=routing_key, body=message
