@@ -1,4 +1,4 @@
-# Servicio Usuarios ver. 0.2.0
+# Servicio Usuarios ver. 0.3.0
 
 Requerimientos para correr el codigo:
 - ```docker``` y ```docker compose```
