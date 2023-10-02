@@ -42,6 +42,30 @@ class User(BaseModel):
         }
 
 
+class UserUpdate(BaseModel):
+    name: Optional[str]  # = Field(examples=["Juan"])
+    username: Optional[str]  # = Field(examples=["juan1010"])
+    password: Optional[str]  # = Field(examples=["password123"])
+    email: Optional[str]  # = Field(default=None, examples=["juan@gmail.com"])
+    admin: Optional[bool]  # = Field(default=None, examples=["True"])
+    phone_number: Optional[int]  # = Field(default=None, examples=["123456789"])
+    ad: Optional[str]
+
+    class Config:
+        arbitrary_types_allowed = True
+        schema_extra = {
+            "example": {
+                "name": "Juan",
+                "username": "juan123",
+                "password": "asdsad123",
+                "email": "email@email.com",
+                "admin": True,
+                "phone_number": 1234567890,
+                "ad": "Compra Coca-Cola",
+            }
+        }
+
+
 logging.basicConfig(
     level=logging.INFO, format="%(asctime)s:%(levelname)s:%(name)s:%(message)s"
 )
@@ -95,6 +119,7 @@ def create_user(user: User):
     - **email**: optional parameter
     - **admin**: optional parameter, doesn't have an use for now
     - **phone_number**: optional parameter, the User's phone number
+    - **ad**: optional parameter
     """
     try:
         new_user = dict(user)
@@ -140,11 +165,43 @@ def update_user_ad(id: str, ad: str):
     response_model=User,
     summary="Update an User",
     response_description="The updated User",
+    deprecated=True,
 )
-def update_user(id: str, user: User):
+def update_user(id: str, user: UserUpdate):
     try:
+        user = UserUpdate.dict(exclude_unset=True)
+
         mongodb_client.service_users.users.find_one_and_update(
             {"_id": ObjectId(id)}, {"$set": dict(user)}
+        )
+        logging.info("User updated: %s" % id)
+        emit_events.send(id, "update", user)
+        return userEntity(
+            mongodb_client.service_users.users.find_one({"_id": ObjectId(id)})
+        )
+    except (InvalidId, TypeError):
+        print(user)
+        raise HTTPException(status_code=404, detail="User not found")
+
+
+@app.patch(
+    "/users/{id}",
+    tags=["User"],
+    response_model=User,
+    summary="Update an User",
+    response_description="The updated User",
+)
+def update_user(id: str, user: UserUpdate):
+    try:
+        user_data = userEntity(
+            mongodb_client.service_users.users.find_one({"_id": ObjectId(id)})
+        )
+        stored_user_model = UserUpdate(**user_data)
+        update_data = user.dict(exclude_unset=True)
+        updated_user = stored_user_model.copy(update=update_data)
+        updated_user.password = sha256_crypt.encrypt(updated_user.password)
+        mongodb_client.service_users.users.find_one_and_update(
+            {"_id": ObjectId(id)}, {"$set": dict(updated_user)}
         )
         logging.info("User updated: %s" % id)
         emit_events.send(id, "update", user)
