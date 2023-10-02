@@ -19,23 +19,23 @@ type_defs = load_schema_from_path("./app/schema.graphql")
 query = QueryType()
 mutation = MutationType()
 
-player = ObjectType("Player")
+user = ObjectType("User")
 
 logging.basicConfig(
     level=logging.DEBUG, format="%(asctime)s:%(levelname)s:%(name)s:%(message)s"
 )
 
 
-@query.field("getPlayer")
-def resolve_get_player(obj, resolve_info: GraphQLResolveInfo, id):
+@query.field("getUser")
+def resolve_get_user(obj, resolve_info: GraphQLResolveInfo, id):
     response = requests.get(f"http://tarea_u4_service_users/users/{id}")
 
     if response.status_code == 200:
         return response.json()
 
 
-@query.field("listPlayers")
-def resolve_list_players(obj, resolve_info: GraphQLResolveInfo, team_id=None):
+@query.field("listUsers")
+def resolve_list_players(obj, resolve_info: GraphQLResolveInfo):
     # Make it slow
     time.sleep(3)
 
@@ -69,7 +69,8 @@ def resolve_create_user(
 
     return requests.post(f"http://tarea_u4_service_users/users", json=payload).json()
 
-schema = make_executable_schema(type_defs, query, mutation, player)
+
+schema = make_executable_schema(type_defs, query, mutation, user)
 app = CORSMiddleware(
     GraphQL(schema, debug=True),
     allow_origins=["*"],

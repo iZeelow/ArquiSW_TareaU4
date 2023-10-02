@@ -2,45 +2,42 @@ import logging
 
 from bson.errors import InvalidId
 from bson.objectid import ObjectId
-from fastapi import FastAPI, status, HTTPException
-from fastapi import HTTPException
+from fastapi import FastAPI, status, HTTPException, Body
 from pydantic import BaseModel, Field
 from pymongo import MongoClient
-from typing import Optional
+from typing import Optional, Annotated
 from bson.objectid import ObjectId
 from bson.errors import InvalidId
 from app.schemas import userEntity, usersEntity
 from passlib.hash import sha256_crypt
 from app.events import Emit
 
-app = FastAPI(title="APIREST FastAPI & MongoDB", version="0.3.1")
+app = FastAPI(title=" User APIREST FastAPI & MongoDB", version="0.4.2")
 
 mongodb_client = MongoClient("tarea_U4_service_users_mongodb", 27017)
 
 
 class User(BaseModel):
-    id: Optional[str] = Field(default=None)
-    name: str = Field(examples=["Juan"])
-    username: str = Field(examples=["juan1010"])
-    password: str = Field(examples=["password123"])
-    email: Optional[str] = Field(default=None, examples=["juan@gmail.com"])
-    admin: Optional[bool] = Field(default=None, examples=["True"])
-    phone_number: Optional[int] = Field(default=None, examples=["123456789"])
+    id: Optional[str]  # = Field(default=None)
+    name: str  # = Field(examples=["Juan"])
+    username: str  # = Field(examples=["juan1010"])
+    password: str  # = Field(examples=["password123"])
+    email: Optional[str]  # = Field(default=None, examples=["juan@gmail.com"])
+    admin: Optional[bool]  # = Field(default=None, examples=["True"])
+    phone_number: Optional[int]  # = Field(default=None, examples=["123456789"])
 
-    model_config = {
-        "json_schema_extra": {
-            "examples": [
-                {
-                    "name": "Juan",
-                    "username": "juan123",
-                    "password": "asdsad123",
-                    "email": "email@email.com",
-                    "admin": "True",
-                    "phone_number": "1234567890",
-                }
-            ]
+    class Config:
+        arbitrary_types_allowed = True
+        schema_extra = {
+            "example": {
+                "name": "Juan",
+                "username": "juan123",
+                "password": "asdsad123",
+                "email": "email@email.com",
+                "admin": True,
+                "phone_number": 1234567890,
+            }
         }
-    }
 
 
 logging.basicConfig(
@@ -59,6 +56,7 @@ emit_events = Emit()
     status_code=status.HTTP_200_OK,
 )
 def get_all_users():
+    logging.info("Getting all Users...")
     return usersEntity(mongodb_client.service_users.users.find({}))
 
 
@@ -71,8 +69,8 @@ def get_all_users():
 )
 def get_user(id: str):
     try:
-        user=mongodb_client.service_users.users.find_one({"_id": ObjectId(id)})
-        logging.info("Query user")
+        user = mongodb_client.service_users.users.find_one({"_id": ObjectId(id)})
+        logging.info("Getting User by id: %s" % id)
         return user
     except (InvalidId, TypeError):
         raise HTTPException(status_code=404, detail="User not found")
@@ -89,12 +87,12 @@ def get_user(id: str):
 def create_user(user: User):
     """
     Create an User with all the information:
-    - **id**: optional parameter, the db generates it
+    - **id**: temporal id, just for api-gateway purposes
     - **name**: the User's name
     - **password**: the User's password
     - **email**: optional parameter
     - **admin**: optional parameter, doesn't have an use for now
-    - **phone_number***: optional parameter, the User's phone number
+    - **phone_number**: optional parameter, the User's phone number
     """
     try:
         new_user = dict(user)
@@ -131,13 +129,19 @@ def update_user(id: str, user: User):
         raise HTTPException(status_code=404, detail="User not found")
 
 
-@app.delete("/users/{id}", tags=["User"], summary="Delete an User")
+@app.delete(
+    "/users/{id}",
+    tags=["User"],
+    response_model=User,
+    summary="Delete an User",
+    response_description="The Deleted User",
+)
 def delete_user(id: str):
     try:
         user = mongodb_client.service_users.users.find_one({"_id": ObjectId(id)})
         mongodb_client.service_users.users.delete_one(({"_id": ObjectId(id)}))
         logging.info("User deleted: %s" % id)
         emit_events.send(id, "delete", user)
-        return
+        return user
     except (InvalidId, TypeError):
         raise HTTPException(status_code=404, detail="User not found")
