@@ -71,8 +71,9 @@ def get_all_users():
 )
 def get_user(id: str):
     try:
-        mongodb_client.service_users.users.find_one({"_id": ObjectId(id)})
+        user=mongodb_client.service_users.users.find_one({"_id": ObjectId(id)})
         logging.info("Query user")
+        return user
     except (InvalidId, TypeError):
         raise HTTPException(status_code=404, detail="User not found")
 
