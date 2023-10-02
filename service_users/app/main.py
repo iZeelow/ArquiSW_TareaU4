@@ -126,7 +126,7 @@ def update_user_ad(id: str, ad: str):
             {"_id": ObjectId(id)}, {"$set": {"ad": str(ad)}}
         )
         logging.info("User has new ad: %s" % ad)
-        emit_events.send(id, "update", user)
+        emit_events.send(id, "updatead", user)
         return userEntity(
             mongodb_client.service_users.users.find_one({"_id": ObjectId(id)})
         )
@@ -188,7 +188,7 @@ def delete_user_ad(id: str):
             {"_id": ObjectId(id)}, {"$set": dict(user)}
         )
         logging.info("User ad deleted: %s" % id)
-        # emit_events.send(id, "delete", user)
+        emit_events.send(id, "deletead", user)
         return userEntity(
             mongodb_client.service_users.users.find_one({"_id": ObjectId(id)})
         )
