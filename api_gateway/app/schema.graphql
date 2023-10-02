@@ -3,8 +3,8 @@ schema {
     mutation: Mutation
 }
 
-type Player {
-    id: ID!
+type User {
+    id: ID
     name: String!
     username: String!
     password: String!
@@ -14,16 +14,16 @@ type Player {
 }
 
 type Query {
-    listPlayers: [Player]!
-    getPlayer(id: ID!): Player!
+    listUsers: [User]!
+    getUser(id: ID!): User!
 }
 
 type Mutation {
-    createUser(id: ID!,
+    createUser(id: ID,
     name: String!,
     username: String!,
     password: String!,
     email: String,
     admin: Boolean,
-    phone_number: Int): Player!
+    phone_number: Int): User!
 }
