@@ -5,16 +5,15 @@ from bson.objectid import ObjectId
 from fastapi import FastAPI, status, HTTPException
 from fastapi import HTTPException
 from pydantic import BaseModel, Field
-from routes.user import user
 from pymongo import MongoClient
 from typing import Optional
 from bson.objectid import ObjectId
 from bson.errors import InvalidId
-from schemas import userEntity, usersEntity
+from app.schemas import userEntity, usersEntity
 from passlib.hash import sha256_crypt
 from app.events import Emit
 
-app = FastAPI(title="APIREST FastAPI & MongoDB", version="0.2.0")
+app = FastAPI(title="APIREST FastAPI & MongoDB", version="0.3.1")
 
 mongodb_client = MongoClient("tarea_U4_service_users_mongodb", 27017)
 
@@ -51,7 +50,7 @@ logging.basicConfig(
 emit_events = Emit()
 
 
-@user.get(
+@app.get(
     "/users",
     tags=["User"],
     response_model=list[User],
@@ -63,7 +62,7 @@ def get_all_users():
     return usersEntity(mongodb_client.service_users.users.find({}))
 
 
-@user.get(
+@app.get(
     "/users/{id}",
     tags=["User"],
     response_model=User,
@@ -78,7 +77,7 @@ def get_user(id: str):
         raise HTTPException(status_code=404, detail="User not found")
 
 
-@user.post(
+@app.post(
     "/users",
     tags=["User"],
     response_model=User,
@@ -110,7 +109,7 @@ def create_user(user: User):
         raise HTTPException(status_code=404, detail="Something went wrong")
 
 
-@user.put(
+@app.put(
     "/users/{id}",
     tags=["User"],
     response_model=User,
@@ -131,7 +130,7 @@ def update_user(id: str, user: User):
         raise HTTPException(status_code=404, detail="User not found")
 
 
-@user.delete("/users/{id}", tags=["User"], summary="Delete an User")
+@app.delete("/users/{id}", tags=["User"], summary="Delete an User")
 def delete_user(id: str):
     try:
         user = mongodb_client.service_users.users.find_one({"_id": ObjectId(id)})
