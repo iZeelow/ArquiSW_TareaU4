@@ -3,3 +3,4 @@
 **/__pycache__
 
 **/.vscode
+api_gateway/app/main.py

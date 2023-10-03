@@ -1,25 +1,46 @@
-
 schema {
     query: Query
     mutation: Mutation
 }
 
 type User {
-    id: ID!
+    id: ID
     name: String!
     username: String!
+    password: String!
     email: String
     admin: Boolean
     phone_number: Int
+    ad: String
 }
 
 type Query {
+    listUsers: [User]!
     getUser(id: ID!): User!
-    getAllUsers: [User]! 
 }
 
 type Mutation {
-    createUser(name: String!,username:String!,password:String!,email: String,admin: Boolean,phone_number:Int): User
-    updateUser(id: ID!, name:String,username:String,password:String): User
-    deleteUser(id: ID!): User
+    createUser(id: ID,
+    name: String!,
+    username: String!,
+    password: String!,
+    email: String,
+    admin: Boolean,
+    phone_number: Int,
+    ad:String): User!
+
+    updateUser(id: ID!,
+    name: String,
+    username: String,
+    password: String,
+    email: String,
+    admin: Boolean,
+    phone_number: Int,
+    ad:String): User!
+
+    deleteUser(id :ID!): User!
+
+    updateUserAd(id: ID!, ad: String!): User!
+
+    deleteUserAd(id: ID!): User!
 }
