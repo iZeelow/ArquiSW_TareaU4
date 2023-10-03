@@ -11,4 +11,4 @@ Una vez realizado esto ejecutar ```docker compose build``` y ```docker compose u
 
 Finalmente, los servicios quedarán ejecutados en los siguientes puertos:
 - ```localhost:5000``` para el servicio de ```Users```
-- ```localhost:5001``` para el servicio de ```api-gateway```
+- ```localhost:5001``` para el servicio de ```api_gateway```
