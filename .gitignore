@@ -4,3 +4,4 @@
 
 **/.vscode
 api_gateway/app/main.py
+node_modules
