@@ -1,0 +1,35 @@
+:root {
+    --main: #4134C5;
+    --background:#302173;
+    --opt:#8081E0;
+    --opt2:#D1D5F5;
+    --opt3: white;
+}
+
+.react-chatbot-kit-chat-container {
+    width: 55rem;
+  }
+
+.react-chatbot-kit-chat-bot-message{
+    margin-left: .5rem;
+    background-color: var(--main);
+    width: 25rem;
+}
+
+.react-chatbot-kit-chat-bot-message-arrow{
+    border-right-color: var(--main);
+}
+
+.react-chatbot-kit-chat-btn-send{
+    background-color: var(--main);
+}
+
+.CG{
+    background-color: var(--main);
+    width: 3.5rem;
+    height: 3.5rem;
+    display: grid;
+    place-items: center;
+    color: white;
+    border-radius: 100%;
+}

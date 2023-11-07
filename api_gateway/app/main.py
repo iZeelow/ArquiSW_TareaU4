@@ -49,25 +49,27 @@ def resolve_list_users(obj, resolve_info: GraphQLResolveInfo):
 def resolve_create_user(
     obj,
     resolve_info: GraphQLResolveInfo,
-    id,
     name,
     username,
     password,
-    email,
-    admin,
-    phone_number,
-    ad
+    id=None,
+    email=None,
+    admin=None,
+    phone_number=None,
+    ad=None
 ):
-    payload = dict(
-        id=id,
-        name=name,
-        username=username,
-        password=password,
-        email=email,
-        admin=admin,
-        phone_number=phone_number,
-        ad=ad
-    )
+    payload = dict(name=name,username=username,password=password)
+    if id is not None:
+        payload["id"]=id
+    if email is not None:
+        payload["email"]=email
+    if admin is not None:
+        payload["admin"]=admin
+    if phone_number is not None:
+        payload["phone_number"]=phone_number
+    if ad is not None:
+        payload["ad"]=ad
+
 
     return requests.post(f"http://tarea_u4_service_users/users", json=payload).json()
 

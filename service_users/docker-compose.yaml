@@ -19,5 +19,5 @@ volumes:
 
 networks:
   default:
-    name: tarea_u4
+    name: microsvcs
     external: true
