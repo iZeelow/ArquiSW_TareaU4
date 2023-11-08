@@ -8,8 +8,6 @@ RUN npm install
 
 COPY . .
 
-COPY .next ./.next
-
-EXPOSE 50002
+EXPOSE 5002
 
 CMD [ "npm", "run","dev" ]
