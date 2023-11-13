@@ -16,7 +16,6 @@ app = FastAPI(title=" User APIREST FastAPI & MongoDB", version="0.6.3")
 
 mongodb_client = MongoClient("tarea_u4_service_users_mongodb", 27017)
 
-
 class User(BaseModel):
     id: Optional[str]  # = Field(default=None)
     name: str  # = Field(examples=["Juan"])
@@ -72,6 +71,9 @@ logging.basicConfig(
 
 emit_events = Emit()
 
+@app.get("/")
+async def root():
+    return {"message": "Hello World"}
 
 @app.get(
     "/users",
