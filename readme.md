@@ -20,3 +20,8 @@ El chat actualmente cuenta con tres comandos:
 - ```!comandos``` para listar los comandos disponibles
 - ```!jugadores``` para ver la lista de jugadores actuales
 - ```!comenzar Nombre username contraseña``` para crear tu usuario en el juego
+
+Para testear es necesario tener los contenedores corriendo excepto de interfaz.
+tambien es necesario tener instalado ```pytest``` y ```requests```y proceder a escribir ```pytest```
+Se realizó un un testeo para crear un usuario y otro para updatear sus datos, de por medio
+también se testeo borrar un usuario para no dejar la base de datos con información extra.
